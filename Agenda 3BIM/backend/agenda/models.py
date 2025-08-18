@@ -1,12 +1,11 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission # Adicione Group e Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission 
 from django.db import models
-from django.utils.translation import gettext_lazy as _ # Boa prática para tradução
+from django.utils.translation import gettext_lazy as _ 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Adicione estas duas linhas para resolver o conflito
     groups = models.ManyToManyField(
         Group,
         verbose_name=_('groups'),
