@@ -1,0 +1,77 @@
+.task-list-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.add-task-form {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.add-task-form input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-task-form button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+li.completed span {
+  text-decoration: line-through;
+  color: #888;
+}
+
+li span {
+  cursor: pointer;
+}
+
+.buttons button {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.buttons button:first-child {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.buttons button:last-child {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
