@@ -6,7 +6,6 @@ SECRET_KEY = 'django-insecure-z_n@&9_9o6^#key+w2+k96_!!@fny)zd+1^&elugd=(k5if5ca
 
 DEBUG = True
 
-# IMPORTANTE: Adicione os hosts permitidos
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
@@ -82,5 +81,3 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 AUTH_USER_MODEL = 'agenda.User'
-
-CORS_ALLOWED_ORIGINS = True
