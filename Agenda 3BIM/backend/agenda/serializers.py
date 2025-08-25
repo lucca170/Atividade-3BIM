@@ -1,19 +1,15 @@
 from rest_framework import serializers
-from .models import User, Category, Task, Team, TeamMember, TaskAssignment
+from .models import User, Task, Team, TeamMember, TaskAssignment
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # Adiciona 'password' aos campos para o registro
         fields = ['id', 'username', 'email', 'password']
         extra_kwargs = {
-            # Garante que a senha seja apenas para escrita (não será retornada na API)
             'password': {'write_only': True}
         }
-
+    
     def create(self, validated_data):
-        # Este método é chamado ao criar um novo usuário.
-        # Ele usa a função create_user para garantir que a senha seja "hasheada".
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
@@ -21,28 +17,24 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
+# O CATEGORYSERIALIZER FOI REMOVIDO
 
 class TaskSerializer(serializers.ModelSerializer):
-    # Campo para associar a tarefa ao usuário, mas será preenchido automaticamente
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Task
+        # REMOVIDO 'category' DA LISTA DE CAMPOS
         fields = [
-            'id',
-            'title',
-            'description',
-            'status',
-            'category',
-            'created_at',
+            'id', 
+            'title', 
+            'description', 
+            'status', 
+            'created_at', 
             'updated_at',
             'start_date',
             'due_date',
-            'user' # Adicionado o campo user
+            'user'
         ]
 
 class TeamSerializer(serializers.ModelSerializer):

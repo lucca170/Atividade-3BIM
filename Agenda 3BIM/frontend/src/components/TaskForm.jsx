@@ -5,7 +5,7 @@ import './TaskForm.css';
 function TaskForm({ task, onSave, onCancel }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('pending');
+  const [status, setStatus] = useState('Pendente');
   const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
 
@@ -13,14 +13,14 @@ function TaskForm({ task, onSave, onCancel }) {
     if (task) {
       setTitle(task.title || '');
       setDescription(task.description || '');
-      setStatus(task.status || 'pending');
-      setStartDate(task.start_date || '');
-      setDueDate(task.due_date || '');
+      setStatus(task.status || 'Pendente');
+      setStartDate(task.start_date ? task.start_date.split('T')[0] : '');
+      setDueDate(task.due_date ? task.due_date.split('T')[0] : '');
     } else {
-      // Limpa o formulário para criar uma nova tarefa
+      // Limpa o formulário para uma nova tarefa
       setTitle('');
       setDescription('');
-      setStatus('pending');
+      setStatus('Pendente');
       setStartDate('');
       setDueDate('');
     }
@@ -32,21 +32,19 @@ function TaskForm({ task, onSave, onCancel }) {
       title,
       description,
       status,
-      start_date: startDate || null, // Envia null se a data estiver vazia
-      due_date: dueDate || null,     // Envia null se a data estiver vazia
+      start_date: startDate || null,
+      due_date: dueDate || null,
     };
 
     try {
       if (task && task.id) {
-        // Modo de Edição
-        await api.put(`/tasks/${task.id}/`, taskData);
+        await api.put(`tasks/${task.id}/`, taskData);
       } else {
-        // Modo de Criação
-        await api.post('/tasks/', taskData);
+        await api.post('tasks/', taskData);
       }
       onSave();
     } catch (error) {
-      console.error('Falha ao salvar a tarefa', error);
+      console.error('Falha ao salvar a tarefa', error.response?.data);
       alert('Não foi possível salvar a tarefa.');
     }
   };
@@ -58,35 +56,57 @@ function TaskForm({ task, onSave, onCancel }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">Título</label>
-            <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
           </div>
           <div className="form-group">
             <label htmlFor="description">Descrição</label>
-            <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="start_date">Data de Início</label>
-              <input type="date" id="start_date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label htmlFor="due_date">Data de Entrega</label>
-              <input type="date" id="due_date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-            </div>
-          </div>
-
           <div className="form-group">
             <label htmlFor="status">Status</label>
             <select id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="pending">Pendente</option>
-              <option value="in_progress">Em Progresso</option>
-              <option value="completed">Concluída</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Em Andamento">Em Andamento</option>
+              <option value="Concluída">Concluída</option>
             </select>
           </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="start_date">Data de Início</label>
+              <input
+                type="date"
+                id="start_date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="due_date">Data de Entrega</label>
+              <input
+                type="date"
+                id="due_date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+            </div>
+          </div>
           <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
-            <button type="submit" className="btn btn-primary">Salvar</button>
+            <button type="button" className="btn btn-secondary" onClick={onCancel}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Salvar
+            </button>
           </div>
         </form>
       </div>
