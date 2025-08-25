@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from '../services/api';
-import './TaskForm.css'; // Reutilizando o estilo
+import './TaskForm.css';
 
 function RegisterForm({ onSwitchToLogin }) {
   const [username, setUsername] = useState('');
@@ -10,13 +10,16 @@ function RegisterForm({ onSwitchToLogin }) {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      // Faz a requisição para o endpoint de usuários que criamos no backend
-      await api.post('/users/', { username, email, password });
+      // CORREÇÃO: Certifique-se de que a URL termina com uma barra.
+      // A rota é `users/`
+      await api.post('users/', { username, email, password });
       alert('Usuário cadastrado com sucesso! Faça o login para continuar.');
-      onSwitchToLogin(); // Muda para a tela de login após o sucesso
+      onSwitchToLogin();
     } catch (error) {
       console.error('Falha no cadastro', error.response.data);
-      alert('Não foi possível realizar o cadastro. Verifique os dados.');
+      // Pega a mensagem de erro específica do backend, se houver.
+      const errorMessage = Object.values(error.response.data).join('\n');
+      alert(`Não foi possível realizar o cadastro:\n${errorMessage}`);
     }
   };
 
@@ -25,6 +28,7 @@ function RegisterForm({ onSwitchToLogin }) {
       <div className="modal-content">
         <h2>Criar Conta</h2>
         <form onSubmit={handleRegister}>
+          {/* ... (seus inputs de username, email e password) ... */}
           <div className="form-group">
             <label htmlFor="username">Usuário</label>
             <input

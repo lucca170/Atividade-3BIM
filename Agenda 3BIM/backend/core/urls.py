@@ -1,18 +1,14 @@
+from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, CategoryViewSet, TaskViewSet, TeamViewSet, TeamMemberViewSet, TaskAssignmentViewSet
-
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'categories', CategoryViewSet)
-
-
-router.register(r'tasks', TaskViewSet, basename='task')
-
-router.register(r'teams', TeamViewSet)
-router.register(r'team-members', TeamMemberViewSet)
-router.register(r'task-assignments', TaskAssignmentViewSet)
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Rota para o painel de administração do Django
+    path('admin/', admin.site.urls),
+
+    # Inclui todas as URLs do seu aplicativo 'agenda' sob o prefixo 'api/'
+    path('api/', include('agenda.urls')),
+
+    # Rota para obter o token de autenticação (login)
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 ]

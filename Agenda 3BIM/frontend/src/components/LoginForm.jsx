@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import api from '../services/api';
-import './TaskForm.css'; // Reutilizando o estilo
+import './TaskForm.css';
 
+// Adicione onSwitchToRegister como uma propriedade
 function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -9,6 +10,9 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // CORREÇÃO: O endpoint correto não tem /api/ no início,
+      // pois o `api.js` já configura isso.
+      // O endpoint correto é `api-token-auth/`.
       const response = await api.post('api-token-auth/', { username, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
@@ -24,26 +28,7 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
       <div className="modal-content">
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          <div className="form-group">
-            <label htmlFor="username">Usuário</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {/* ... (inputs de username e password) ... */}
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={onSwitchToRegister}>
               Criar conta
