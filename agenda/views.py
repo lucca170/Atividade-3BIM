@@ -27,11 +27,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Esta função garante que um usuário só vê as suas próprias tarefas.
         return Task.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Esta função guarda a nova tarefa associada ao usuário que está logado.
         serializer.save(user=self.request.user)
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -48,3 +46,7 @@ class TaskAssignmentViewSet(viewsets.ModelViewSet):
     queryset = TaskAssignment.objects.all()
     serializer_class = TaskAssignmentSerializer
     permission_classes = [IsAuthenticated]
+
+    class TaskViewSet(viewsets.ModelViewSet):
+     def perform_create(self, serializer):
+         serializer.save(user=self.request.user)
