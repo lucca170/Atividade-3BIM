@@ -4,101 +4,95 @@ import './TaskList.css';
 
 function TaskList() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
-  const [editingTask, setEditingTask] = useState(null);
-  const [editingText, setEditingText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Dados de exemplo para o layout
+  const exampleTasks = [
+    {id: 1, title: 'Revisar o design do novo dashboard', status: 'Concluída'},
+    {id: 2, title: 'Desenvolver a API de autenticação', status: 'Em andamento'},
+    {id: 3, title: 'Corrigir bug na página de checkout', status: 'Pendente'},
+    {id: 4, title: 'Planejar o sprint da próxima semana', status: 'Pendente'},
+    {id: 5, title: 'Atualizar documentação da API', status: 'Em andamento'},
+  ];
 
   useEffect(() => {
+    // Simulando o carregamento da API para usar os dados de exemplo
+    setTimeout(() => {
+      setTasks(exampleTasks);
+      setLoading(false);
+    }, 1000);
+
+    /* Descomente o código abaixo para usar sua API real
     api.get('tasks/')
-      .then((res) => setTasks(res.data))
-      .catch((err) => console.error('Erro ao buscar tarefas:', err));
+      .then((res) => {
+        setTasks(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Erro ao buscar tarefas:', err);
+        setError('Não foi possível carregar as tarefas.');
+        setLoading(false);
+      });
+    */
   }, []);
 
-  const addTask = (e) => {
-    e.preventDefault();
-    if (newTask.trim() === '') return;
-    api.post('tasks/', { title: newTask, status: 'Pendente' })
-      .then((res) => {
-        setTasks([...tasks, res.data]);
-        setNewTask('');
-      })
-      .catch((err) => console.error('Erro ao adicionar tarefa:', err));
-  };
-
-  const deleteTask = (id) => {
-    api.delete(`tasks/${id}/`)
-      .then(() => {
-        setTasks(tasks.filter((task) => task.id !== id));
-      })
-      .catch((err) => console.error('Erro ao excluir tarefa:', err));
-  };
-
-  const toggleComplete = (task) => {
-    const newStatus = task.status === 'Pendente' ? 'Concluída' : 'Pendente';
-    api.put(`tasks/${task.id}/`, { ...task, status: newStatus })
-      .then((res) => {
-        setTasks(tasks.map((t) => (t.id === task.id ? res.data : t)));
-      })
-      .catch((err) => console.error('Erro ao atualizar tarefa:', err));
-  };
-
-  const startEditing = (task) => {
-    setEditingTask(task.id);
-    setEditingText(task.title);
-  };
-
-  const saveEditing = (task) => {
-    api.put(`tasks/${task.id}/`, { ...task, title: editingText })
-      .then((res) => {
-        setTasks(tasks.map((t) => (t.id === task.id ? res.data : t)));
-        setEditingTask(null);
-        setEditingText('');
-      })
-      .catch((err) => console.error('Erro ao editar tarefa:', err));
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'Concluída': return 'status-completed';
+      case 'Em andamento': return 'status-in-progress';
+      case 'Pendente': return 'status-pending';
+      default: return '';
+    }
   };
 
   return (
-    <div className="task-list-container">
-      <h1>Lista de Tarefas</h1>
-      <form onSubmit={addTask} className="add-task-form">
-        <input
-          type="text"
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          placeholder="Adicionar nova tarefa"
-        />
-        <button type="submit">Adicionar</button>
-      </form>
-      {tasks.length === 0 ? (
-        <p>Nenhuma tarefa encontrada.</p>
-      ) : (
-        <ul>
-          {tasks.map((task) => (
-            <li key={task.id} className={task.status === 'Concluída' ? 'completed' : ''}>
-              {editingTask === task.id ? (
-                <input
-                  type="text"
-                  value={editingText}
-                  onChange={(e) => setEditingText(e.target.value)}
-                />
-              ) : (
-                <span onClick={() => toggleComplete(task)}>
-                  <strong>{task.title}</strong> - {task.status}
-                </span>
-              )}
+    <div className="task-manager">
+      <div className="task-manager-header">
+        <h2>Tarefas Recentes</h2>
+        <div className="filter-tabs">
+          <button className="tab-btn active">Todos</button>
+          <button className="tab-btn">Pendentes</button>
+          <button className="tab-btn">Em andamento</button>
+          <button className="tab-btn">Concluídas</button>
+        </div>
+      </div>
 
-              <div className="buttons">
-                {editingTask === task.id ? (
-                  <button onClick={() => saveEditing(task)}>Salvar</button>
-                ) : (
-                  <button onClick={() => startEditing(task)}>Editar</button>
-                )}
-                <button onClick={() => deleteTask(task.id)}>Excluir</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="task-list">
+        {loading && <p>Carregando...</p>}
+        {error && <p className="error-message">{error}</p>}
+        {!loading && !error && (
+          <table>
+            <thead>
+              <tr>
+                <th>Tarefa</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => (
+                <tr key={task.id}>
+                  <td>
+                    <div className="task-info">
+                      <div className="task-icon"></div>
+                      {task.title}
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(task.status)}`}>
+                      {task.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="action-btn">Ver Detalhes</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
