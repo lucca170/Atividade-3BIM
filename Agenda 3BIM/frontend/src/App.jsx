@@ -1,26 +1,35 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import TaskList from './components/TaskList.jsx';
-import './App.css'; // Criaremos este arquivo a seguir
+import TaskForm from './components/TaskForm.jsx'; // Importe o novo componente
+import './App.css';
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  // Adicione um estado para forçar a atualização da TaskList
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleOpenModal = (task = null) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingTask(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSave = () => {
+    handleCloseModal();
+    // Mude a chave para forçar o componente TaskList a recarregar os dados
+    setRefreshKey(oldKey => oldKey + 1);
+  };
+  
   return (
     <div className="app-container">
+      {/* Sidebar e Main Content continuam aqui... */}
       <aside className="sidebar">
-        <div className="sidebar-header">
-          <h2>List</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li className="active"><a href="#">Dashboard</a></li>
-            <li><a href="#">Estatisticas</a></li>
-            <li><a href="#">Projetos</a></li>
-            <li><a href="#">Equipes</a></li>
-            {/* Adicione outros links aqui */}
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="btn btn-secondary">Sair da Conta</button>
-        </div>
+        {/* ... seu código da sidebar ... */}
       </aside>
       <main className="main-content">
         <header className="main-header">
@@ -28,14 +37,27 @@ function App() {
             <h1>Visão Geral</h1>
           </div>
           <div className="header-actions">
-            <button className="btn btn-primary">Adicionar Tarefa</button>
+            {/* O botão agora abre o modal */}
+            <button className="btn btn-primary" onClick={() => handleOpenModal()}>
+              Adicionar Tarefa
+            </button>
             <div className="user-profile">
               <img src="https://via.placeholder.com/40" alt="User Avatar" />
             </div>
           </div>
         </header>
-        <TaskList />
+        {/* Passe a chave de atualização e a função para abrir o modal */}
+        <TaskList key={refreshKey} onEdit={handleOpenModal} />
       </main>
+
+      {/* Renderiza o modal se isModalOpen for verdadeiro */}
+      {isModalOpen && (
+        <TaskForm 
+          task={editingTask} 
+          onSave={handleSave} 
+          onCancel={handleCloseModal} 
+        />
+      )}
     </div>
   );
 }

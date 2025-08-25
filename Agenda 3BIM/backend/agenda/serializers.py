@@ -4,7 +4,7 @@ from .models import User, Category, Task, Team, TeamMember, TaskAssignment
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,7 +14,18 @@ class CategorySerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = '__all__'
+        # CAMPOS DE DATA ADICIONADOS À LISTA
+        fields = [
+            'id', 
+            'title', 
+            'description', 
+            'status', 
+            'category', 
+            'created_at', 
+            'updated_at',
+            'start_date',
+            'due_date'
+        ]
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:

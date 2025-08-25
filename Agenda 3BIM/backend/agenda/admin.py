@@ -1,36 +1,42 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+# A LINHA ABAIXO FOI CORRIGIDA/ADICIONADA
 from .models import User, Category, Task, Team, TeamMember, TaskAssignment
 
+# Registrando os modelos para que apareçam no painel de administração do Django
+
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
-    model = User
-    list_display = ['username', 'email', 'is_staff', 'is_active', 'updated_at']
-    search_fields = ['username', 'email']
+class UserAdmin(admin.ModelAdmin):
+    # Mostrando campos que realmente existem no modelo User padrão
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'date_joined')
+    search_fields = ('username', 'email')
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'user', 'created_at']
-    search_fields = ['name']
-    list_filter = ['created_at']
+    # O modelo Category só tem o campo 'name'
+    list_display = ('name',)
+    search_fields = ('name',)
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ['title', 'status', 'user', 'due_date', 'created_at']
-    list_filter = ['status', 'created_at']
-    search_fields = ['title', 'description']
+    # O modelo Task não tem um campo 'user' direto, mas tem status, due_date, etc.
+    list_display = ('title', 'status', 'due_date', 'start_date', 'created_at')
+    list_filter = ('status', 'due_date')
+    search_fields = ('title',)
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['name', 'created_at']
-    search_fields = ['name']
+    # O modelo Team não tem 'created_at'
+    list_display = ('name', 'description')
+    search_fields = ('name',)
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ['team', 'user', 'role', 'joined_at']
-    list_filter = ['role']
+    # O modelo TeamMember não tem 'joined_at'
+    list_display = ('team', 'user', 'role')
+    list_filter = ('team', 'role')
+    search_fields = ('user__username', 'team__name')
 
 @admin.register(TaskAssignment)
 class TaskAssignmentAdmin(admin.ModelAdmin):
-    list_display = ['task', 'user', 'assigned_at']
-    list_filter = ['assigned_at']
+    list_display = ('task', 'user', 'assigned_at')
+    list_filter = ('task', 'user')

@@ -1,98 +1,81 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import './TaskList.css';
 
-function TaskList() {
+function TaskList({ onEdit }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Dados de exemplo para o layout
-  const exampleTasks = [
-    {id: 1, title: 'Revisar o design do novo dashboard', status: 'Concluída'},
-    {id: 2, title: 'Desenvolver a API de autenticação', status: 'Em andamento'},
-    {id: 3, title: 'Corrigir bug na página de checkout', status: 'Pendente'},
-    {id: 4, title: 'Planejar o sprint da próxima semana', status: 'Pendente'},
-    {id: 5, title: 'Atualizar documentação da API', status: 'Em andamento'},
-  ];
+
+  // Função para formatar a data (YYYY-MM-DD) para o padrão brasileiro (DD/MM/YYYY)
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    // Adiciona 'T00:00:00' para tratar a data como local e evitar problemas de fuso horário
+    const date = new Date(`${dateString}T00:00:00`);
+    return date.toLocaleDateString('pt-BR');
+  };
 
   useEffect(() => {
-    // Simulando o carregamento da API para usar os dados de exemplo
-    setTimeout(() => {
-      setTasks(exampleTasks);
-      setLoading(false);
-    }, 1000);
-
-    /* Descomente o código abaixo para usar sua API real
-    api.get('tasks/')
-      .then((res) => {
-        setTasks(res.data);
+    const fetchTasks = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/tasks/');
+        setTasks(response.data);
+      } catch (err) {
+        setError('Falha ao carregar as tarefas.');
+        console.error(err);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Erro ao buscar tarefas:', err);
-        setError('Não foi possível carregar as tarefas.');
-        setLoading(false);
-      });
-    */
+      }
+    };
+    fetchTasks();
   }, []);
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'Concluída': return 'status-completed';
-      case 'Em andamento': return 'status-in-progress';
-      case 'Pendente': return 'status-pending';
-      default: return '';
+  const handleDelete = async (taskId) => {
+    if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
+      try {
+        await api.delete(`/tasks/${taskId}/`);
+        setTasks(tasks.filter(task => task.id !== taskId));
+      } catch (err) {
+        alert('Não foi possível excluir a tarefa.');
+        console.error(err);
+      }
     }
   };
 
-  return (
-    <div className="task-manager">
-      <div className="task-manager-header">
-        <h2>Tarefas Recentes</h2>
-        <div className="filter-tabs">
-          <button className="tab-btn active">Todos</button>
-          <button className="tab-btn">Pendentes</button>
-          <button className="tab-btn">Em andamento</button>
-          <button className="tab-btn">Concluídas</button>
-        </div>
-      </div>
+  if (loading) return <p>Carregando tarefas...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
-      <div className="task-list">
-        {loading && <p>Carregando...</p>}
-        {error && <p className="error-message">{error}</p>}
-        {!loading && !error && (
-          <table>
-            <thead>
-              <tr>
-                <th>Tarefa</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr key={task.id}>
-                  <td>
-                    <div className="task-info">
-                      <div className="task-icon"></div>
-                      {task.title}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(task.status)}`}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="action-btn">Ver Detalhes</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+  return (
+    <div className="task-list-container">
+      {tasks.length > 0 ? (
+        <ul className="task-list">
+          {tasks.map((task) => (
+            <li key={task.id} className={`task-item status-${task.status}`}>
+              <div className="task-info">
+                <h3>{task.title}</h3>
+                <p>{task.description}</p>
+                <div className="task-meta">
+                  <span className="task-status">{task.status.replace('_', ' ')}</span>
+                  <div className="task-dates">
+                    {task.start_date && <span>Início: {formatDate(task.start_date)}</span>}
+                    {task.due_date && <span>Entrega: {formatDate(task.due_date)}</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="task-actions">
+                <button className="btn-edit" onClick={() => onEdit(task)}>Editar</button>
+                <button className="btn-delete" onClick={() => handleDelete(task.id)}>Excluir</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="empty-state">
+          <h3>Nenhuma tarefa por aqui!</h3>
+          <p>Clique em "Adicionar Tarefa" para começar a se organizar.</p>
+        </div>
+      )}
     </div>
   );
 }

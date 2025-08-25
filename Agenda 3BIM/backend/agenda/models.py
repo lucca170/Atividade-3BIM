@@ -1,76 +1,50 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission 
 from django.db import models
-from django.utils.translation import gettext_lazy as _ 
+from django.contrib.auth.models import AbstractUser
 
+# Create your models here.
 class User(AbstractUser):
-    email = models.EmailField(unique=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name=_('groups'),
-        blank=True,
-        help_text=_(
-            'The groups this user belongs to. A user will get all permissions '
-            'granted to each of their groups.'
-        ),
-        related_name="custom_user_set", 
-        related_query_name="user",
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name=_('user permissions'),
-        blank=True,
-        help_text=_('Specific permissions for this user.'),
-        related_name="custom_user_set", 
-        related_query_name="user",
-    )
+    pass
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 class Task(models.Model):
-    STATUS_CHOICES = [
-        ('pendente', 'Pendente'),
-        ('em_andamento', 'Em Andamento'),
-        ('concluida', 'Concluída'),
-    ]
-
-    title = models.CharField(max_length=150)
+    title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente')
-    due_date = models.DateField(blank=True, null=True)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=50, default='pending') # pending, in_progress, completed
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # LINHAS ADICIONADAS
+    start_date = models.DateField(verbose_name="Data de Início", null=True, blank=True)
+    due_date = models.DateField(verbose_name="Data de Entrega", null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 class TeamMember(models.Model):
-    ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('membro', 'Membro'),
-    ]
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50) # admin, member
 
-    team = models.ForeignKey('Team', on_delete=models.CASCADE)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='membro')
-    joined_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('team', 'user')
+    def __str__(self):
+        return f'{self.user.username} - {self.team.name}'
 
 class TaskAssignment(models.Model):
-    task = models.ForeignKey('Task', on_delete=models.CASCADE)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ('task', 'user')
+    def __str__(self):
+        return f'{self.task.title} assigned to {self.user.username}'
