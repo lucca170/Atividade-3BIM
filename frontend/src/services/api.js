@@ -32,4 +32,15 @@ export const updateTask = (id, taskData) => api.put(`tasks/${id}/`, taskData);
 export const deleteTask = (id) => api.delete(`tasks/${id}/`);
 export const getTaskStatusCount = () => api.get('/tasks/status_count/');
 
+
+export const requestPasswordReset = async (email) => {
+  const response = await api.post('/solicitar-redefinicao-senha/', { email });
+  return response.data;
+};
+
+export const resetPassword = async (token, password) => {
+  const response = await api.post('/redefinir-senha/', { token, password });
+  return response.data;
+};
+
 export default api;
