@@ -1,53 +1,24 @@
+# lucca170/atividade-3bim/Atividade-3BIM-1c0f99b5d51b8cb26a84a28294d7ef26d786516d/Agenda 3BIM/backend/agenda/serializers.py
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import User, Task, Team, TeamMember, TaskAssignment
+from .models import Task
+
+# Pega o modelo de usuário que está ativo no projeto
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
-    
+        fields = ('username', 'password', 'email')
+        extra_kwargs = {'password': {'write_only': True}}
+
     def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data.get('email', ''),
-            password=validated_data['password']
-        )
+        user = User.objects.create_user(**validated_data)
         return user
 
-# O CATEGORYSERIALIZER FOI REMOVIDO
-
 class TaskSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Task
-        # REMOVIDO 'category' DA LISTA DE CAMPOS
-        fields = [
-            'id', 
-            'title', 
-            'description', 
-            'status', 
-            'created_at', 
-            'updated_at',
-            'start_date',
-            'due_date',
-            'user'
-        ]
-
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = '__all__'
-
-class TeamMemberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TeamMember
-        fields = '__all__'
-
-class TaskAssignmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TaskAssignment
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'due_date', 'completed', 'user']

@@ -1,52 +1,26 @@
+# lucca170/atividade-3bim/Atividade-3BIM-1c0f99b5d51b8cb26a84a28294d7ef26d786516d/Agenda 3BIM/backend/agenda/views.py
+from .models import Task
+from .serializers import TaskSerializer, UserSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import User, Task, Team, TeamMember, TaskAssignment
+from django.contrib.auth import get_user_model
+from rest_framework import generics
 
-# ADICIONE ESTE BLOCO DE CÓDIGO QUE ESTAVA EM FALTA
-from .serializers import (
-    UserSerializer,
-    TaskSerializer,
-    TeamSerializer,
-    TeamMemberSerializer,
-    TaskAssignmentSerializer
-)
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+# Pega o modelo de usuário que está ativo no projeto
+User = get_user_model()
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Esta view retorna a lista de tarefas
+        apenas para o usuário autenticado.
+        """
         return Task.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-    permission_classes = [IsAuthenticated]
-
-class TeamMemberViewSet(viewsets.ModelViewSet):
-    queryset = TeamMember.objects.all()
-    serializer_class = TeamMemberSerializer
-    permission_classes = [IsAuthenticated]
-
-class TaskAssignmentViewSet(viewsets.ModelViewSet):
-    queryset = TaskAssignment.objects.all()
-    serializer_class = TaskAssignmentSerializer
-    permission_classes = [IsAuthenticated]
-
-    class TaskViewSet(viewsets.ModelViewSet):
-     def perform_create(self, serializer):
-         serializer.save(user=self.request.user)
+class UserCreate(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]

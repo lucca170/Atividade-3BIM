@@ -1,16 +1,15 @@
+# lucca170/atividade-3bim/Atividade-3BIM-1c0f99b5d51b8cb26a84a28294d7ef26d786516d/Agenda 3BIM/backend/agenda/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-# Removido CategoryViewSet do import
-from .views import UserViewSet, TaskViewSet, TeamViewSet, TeamMemberViewSet, TaskAssignmentViewSet
+from .views import TaskViewSet, UserCreate
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet)
-# A LINHA QUE REGISTAVA 'categories' FOI REMOVIDA
 router.register(r'tasks', TaskViewSet, basename='task')
-router.register(r'teams', TeamViewSet)
-router.register(r'team-members', TeamMemberViewSet)
-router.register(r'task-assignments', TaskAssignmentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('users/', UserCreate.as_view(), name='user_create'),
+    # Rota de autenticação agora faz parte da API principal
+    path('token/', obtain_auth_token, name='api_token_auth'),
 ]
