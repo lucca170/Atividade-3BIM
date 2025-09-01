@@ -1,94 +1,73 @@
+// frontend/src/App.jsx
+
 import React, { useState, useEffect } from 'react';
-import TaskList from './components/TaskList.jsx';
-import TaskForm from './components/TaskForm.jsx';
-import LoginForm from './components/LoginForm.jsx';
-import RegisterForm from './components/RegisterForm.jsx';
+import TaskList from './components/TaskList';
+import TaskForm from './components/TaskForm';
+import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
+import { getTasks } from './services/api'; // Removido imports não usados aqui para simplificar
 import './app.css';
 
-function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLogin, setShowLogin] = useState(true);
+const App = () => {
+    const [tasks, setTasks] = useState([]);
+    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [isLogin, setIsLogin] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
+    useEffect(() => {
+        const fetchTasks = async () => {
+            if (token) {
+                try {
+                    const response = await getTasks();
+                    setTasks(response.data);
+                } catch (error) {
+                    console.error('Failed to fetch tasks', error);
+                }
+            }
+        };
+        fetchTasks();
+    }, [token]);
 
-  const handleOpenModal = (task = null) => {
-    setEditingTask(task);
-    setIsModalOpen(true);
-  };
+    // PONTO 1: A FUNÇÃO PRECISA SER DEFINIDA DENTRO DO APP
+    // Esta função atualiza a lista de tarefas adicionando a nova tarefa.
+    const handleTaskCreated = (newTask) => {
+        setTasks(prevTasks => [...prevTasks, newTask]);
+    };
 
-  const handleCloseModal = () => {
-    setEditingTask(null);
-    setIsModalOpen(false);
-  };
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setTasks([]);
+    };
 
-  const handleSave = () => {
-    handleCloseModal();
-    setRefreshKey(oldKey => oldKey + 1);
-  };
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-  };
-
-  if (!isAuthenticated) {
-    return showLogin ? (
-      <LoginForm 
-        onLoginSuccess={handleLoginSuccess} 
-        onSwitchToRegister={() => setShowLogin(false)} 
-      />
-    ) : (
-      <RegisterForm 
-        onSwitchToLogin={() => setShowLogin(true)} 
-      />
-    );
-  }
-
-  return (
-    <div className="app-container">
-      <aside className="sidebar">
-      </aside>
-      <main className="main-content">
-        <header className="main-header">
-          <div className="header-title">
-            <h1>Visão Geral</h1>
-          </div>
-          <div className="header-actions">
-            <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-              Adicionar Tarefa
-            </button>
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Sair
-            </button>
-            <div className="user-profile">
-              <img src="https://via.placeholder.com/40" alt="User Avatar" />
+    if (!token) {
+        return (
+            <div>
+                {isLogin ? (
+                    <LoginForm setToken={setToken} />
+                ) : (
+                    <RegisterForm setToken={setToken} />
+                )}
+                <button onClick={() => setIsLogin(!isLogin)}>
+                    {isLogin ? 'Não tem uma conta? Registre-se' : 'Já tem uma conta? Login'}
+                </button>
             </div>
-          </div>
-        </header>
-        <TaskList key={refreshKey} onEdit={handleOpenModal} />
-      </main>
+        );
+    }
 
-      {isModalOpen && (
-        <TaskForm
-          task={editingTask}
-          onSave={handleSave}
-          onCancel={handleCloseModal}
-        />
-      )}
-    </div>
-  );
-}
+    return (
+        <div className="app-container">
+            <header className="app-header">
+                <h1>Gerenciador de Tarefas</h1>
+                <button onClick={handleLogout} className="logout-button">Logout</button>
+            </header>
+            <main>
+                {/* PONTO 2: A FUNÇÃO PRECISA SER PASSADA COMO PROP PARA O TASKFORM */}
+                <TaskForm onTaskCreated={handleTaskCreated} />
+
+                <TaskList tasks={tasks} setTasks={setTasks} />
+            </main>
+        </div>
+    );
+};
 
 export default App;
