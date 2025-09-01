@@ -1,8 +1,8 @@
-TaskHub:
-O TaskHub é uma aplicação web full stack para gestão de tarefas pessoais ou de pequenos times. Permite cadastrar, organizar e acompanhar atividades de forma simples, acessível e responsiva. Conta com autenticação via JWT, categorização de tarefas e um painel visual de status (pendente, em andamento, concluída).
+# TaskHub
+TaskHub: É uma aplicação web full stack para gestão de tarefas pessoais ou de pequenos times. Permite cadastrar, organizar e acompanhar atividades de forma simples, acessível e responsiva. Conta com autenticação via JWT, categorização de tarefas e um painel visual de status (pendente, em andamento, concluída).
 
 
-Pré-requisitos:
+# Pré-requisitos:
 Node.js
  >= 18
 
@@ -14,37 +14,34 @@ MySQL
 
 Git
 
-Instalação:
+# Instalação:
 Backend (Django + DRF)
-# Clonar o repositório
-git clone https://github.com/seuusuario/taskhub.git
-cd taskhub/backend
 
-# Criar ambiente virtual
+Criar ambiente virtual:
 python -m venv venv
 source venv/bin/activate   # Linux/Mac
 venv\Scripts\activate      # Windows
 
-# Instalar dependências
+Instalar dependências:
 pip install -r requirements.txt
 
-# Rodar migrações
+Rodar migrações:
 python manage.py migrate
 
-# Iniciar servidor
+Iniciar servidor:
 python manage.py runserver
 
-Frontend (React + Vite + Tailwind)
+# Frontend (React + Vite + Tailwind)
 cd ../frontend
 
-# Instalar dependências
+Instalar dependências:
 npm install
 
-# Iniciar servidor local
+Iniciar servidor local:
 npm run dev
 
 
-Testes:
+# Testes:
 Backend
 pytest
 
@@ -52,7 +49,7 @@ Frontend
 npm test
 
 
-Implantação:
+# Implantação:
 Backend: Railway
 
 Frontend: Vercel
@@ -62,19 +59,17 @@ Banco de Dados: PlanetScale
 Pipeline: Push no GitHub → Deploy automático no Railway/Vercel → Banco conectado ao PlanetScale.
 
 
-Construído com:
+# Construído com:
 Frontend: React, Vite, Tailwind CSS
 
 Backend: Django, Django REST Framework
 
 Banco de Dados: MySQL (PlanetScale)
 
-Autenticação: JWT
-
 Deploy: Railway + Vercel
 
 
-Autores:
+# Autores:
 Raick Miranda
 Gustavo Luca
 Henrique Joaquim
