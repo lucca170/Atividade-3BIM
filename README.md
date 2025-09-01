@@ -71,5 +71,7 @@ Deploy: Railway + Vercel
 
 # Autores:
 Raick Miranda
+
 Gustavo Luca
+
 Henrique Joaquim
