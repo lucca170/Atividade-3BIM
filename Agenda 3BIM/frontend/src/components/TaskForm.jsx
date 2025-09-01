@@ -1,6 +1,5 @@
-// lucca170/atividade-3bim/Atividade-3BIM-1c0f99b5d51b8cb26a84a28294d7ef26d786516d/Agenda 3BIM/frontend/src/components/TaskForm.jsx
-
-import React, { useState } from 'react';
+// frontend/src/components/TaskForm.jsx
+import React, { useState, useEffect } from 'react'; // Adicionado useEffect para lidar com taskToEdit
 import { createTask, updateTask } from '../services/api';
 import './FormModal.css';
 
@@ -15,35 +14,47 @@ const getTodayDate = () => {
 
 const TaskForm = ({ onTaskCreated, onTaskUpdated, closeModal, taskToEdit }) => {
     const isEdit = !!taskToEdit;
-    const [title, setTitle] = useState(taskToEdit ? taskToEdit.title : '');
-    const [description, setDescription] = useState(taskToEdit ? taskToEdit.description : '');
-    const [dueDate, setDueDate] = useState(taskToEdit ? taskToEdit.due_date : getTodayDate());
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [dueDate, setDueDate] = useState(getTodayDate());
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (isEdit && taskToEdit) {
+            setTitle(taskToEdit.title);
+            setDescription(taskToEdit.description);
+            setDueDate(taskToEdit.due_date);
+        } else {
+            // Resetar o formulário se não estiver editando ou se taskToEdit for nulo
+            setTitle('');
+            setDescription('');
+            setDueDate(getTodayDate());
+        }
+    }, [taskToEdit, isEdit]); // Executa quando taskToEdit ou isEdit muda
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        // Validação extra: impede datas anteriores ao hoje
-        if (dueDate < getTodayDate()) {
-            setError('A data de entrega não pode ser anterior ao dia de hoje.');
+        if (dueDate < getTodayDate() && !isEdit) { // Permite editar com data passada se já existia
+            setError('A data de entrega não pode ser anterior ao dia de hoje para novas tarefas.');
             return;
         }
         try {
             const taskData = { title, description, due_date: dueDate };
             if (isEdit) {
-                const response = await updateTask(taskToEdit.id, taskData);
-                if (onTaskUpdated) onTaskUpdated(response.data);
+                // Ao editar, mantém o status original da tarefa
+                const response = await updateTask(taskToEdit.id, { ...taskToEdit, ...taskData });
+                onTaskUpdated(response.data);
             } else {
-                const response = await createTask(taskData);
+                // Novas tarefas começam como "Pendente"
+                const response = await createTask({ ...taskData, status: 'Pendente' });
                 onTaskCreated(response.data);
             }
+            closeModal();
         } catch (err) {
-            // CORREÇÃO: Mostra um alerta se a criação/atualização da tarefa falhar.
-            setError(isEdit
-                ? 'Não foi possível atualizar a tarefa. Verifique os campos e tente novamente.'
-                : 'Não foi possível criar a tarefa. Verifique os campos e tente novamente.'
-            );
-            console.error(isEdit ? 'Failed to update task' : 'Failed to create task', err);
+            const errorMessage = err.response?.data?.detail || err.message || 'Ocorreu um erro ao salvar a tarefa.';
+            setError(errorMessage);
+            console.error('Failed to save task', err);
         }
     };
 
@@ -53,11 +64,12 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, closeModal, taskToEdit }) => {
                 <h2>{isEdit ? 'Editar Tarefa' : 'Nova Tarefa'}</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="title">Título</label>
+                        <label htmlFor="title">Título <span className="required">*</span></label>
                         <input
                             type="text" id="title" value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ex: Desenvolver a tela de login" required
+                            maxLength="100" // Limite de caracteres para título
                         />
                     </div>
                     <div className="form-group">
@@ -66,26 +78,28 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, closeModal, taskToEdit }) => {
                             id="description" value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Detalhes da tarefa..."
+                            rows="4" // Aumenta o tamanho do textarea
+                            maxLength="500" // Limite de caracteres para descrição
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="due-date">Data de Entrega</label>
+                        <label htmlFor="due-date">Data de Entrega <span className="required">*</span></label>
                         <input
                             type="date"
                             id="due-date"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
                             required
-                            min={getTodayDate()} // Impede seleção de datas anteriores
+                            min={getTodayDate()} // Para novas tarefas, impede data passada
                         />
                     </div>
-                    {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
+                    {error && <p className="error-message">{error}</p>}
                     <div className="form-actions">
                         <button type="button" className="btn btn-secondary" onClick={closeModal}>
                             Cancelar
                         </button>
                         <button type="submit" className="btn btn-primary">
-                            {isEdit ? 'Salvar Alterações' : 'Salvar Tarefa'}
+                            {isEdit ? 'Salvar Alterações' : 'Criar Tarefa'}
                         </button>
                     </div>
                 </form>

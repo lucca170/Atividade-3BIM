@@ -1,4 +1,4 @@
-# lucca170/atividade-3bim/Atividade-3BIM-1c0f99b5d51b8cb26a84a28294d7ef26d786516d/Agenda 3BIM/backend/agenda/serializers.py
+# lucca170/atividade-3bim/Atividade-3BIM-49a7878e6d748c261a8fef8453068b3554c1aee9/Agenda 3BIM/backend/agenda/serializers.py
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Task
@@ -12,18 +12,16 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # --- CORREÇÃO AQUI ---
-        # Retiramos a password dos dados validados
         password = validated_data.pop('password', None)
-        # Criamos o utilizador com os restantes dados
         instance = self.Meta.model(**validated_data)
-        # Se a password foi fornecida, nós a criptografamos com set_password
         if password is not None:
             instance.set_password(password)
         instance.save()
         return instance
 
 class TaskSerializer(serializers.ModelSerializer):
+    # O campo user será preenchido automaticamente com o usuário da requisição
+    # e não será visível para o cliente.
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
@@ -32,4 +30,4 @@ class TaskSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'due_date', 'status',
             'start_date', 'created_at', 'updated_at', 'user'
         ]
-        read_only_fields = ['user']
+        read_only_fields = ['created_at', 'updated_at']

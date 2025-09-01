@@ -1,99 +1,116 @@
 // frontend/src/App.jsx
-
 import React, { useState, useEffect } from 'react';
+import { getTasks } from './services/api';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
-import StatusPanel from './components/StatusPanel'; // Importa o novo componente
-import { getTasks } from './services/api';
-import './App.css';
+import StatusPanel from './components/StatusPanel';
+import './app.css';
 
 const App = () => {
     const [tasks, setTasks] = useState([]);
-    const [token, setToken] = useState(localStorage.getItem('token'));
-    const [isLoginView, setIsLoginView] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+    const [showRegister, setShowRegister] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [taskToEdit, setTaskToEdit] = useState(null);
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            if (token) {
-                try {
-                    const response = await getTasks();
-                    setTasks(response.data);
-                } catch (error) {
-                    console.error('Failed to fetch tasks', error);
-                    if (error.response && error.response.status === 401) {
-                        handleLogout();
-                    }
-                }
-            }
-        };
-        fetchTasks();
-    }, [token]);
+        if (isLoggedIn) {
+            fetchTasks();
+        }
+    }, [isLoggedIn]);
 
-    const handleTaskCreated = (newTask) => {
-        setTasks(prevTasks => [newTask, ...prevTasks]);
-        setIsModalOpen(false); // Fecha o modal após criar a tarefa
+    const fetchTasks = async () => {
+        try {
+            const response = await getTasks();
+            setTasks(response.data);
+        } catch (error) {
+            console.error('Failed to fetch tasks', error);
+            if (error.response && error.response.status === 401) {
+                handleLogout();
+            }
+        }
+    };
+
+    const handleLogin = () => {
+        setIsLoggedIn(true);
+        setShowRegister(false);
     };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        setToken(null);
+        setIsLoggedIn(false);
         setTasks([]);
     };
 
-    const onLoginSuccess = (newToken) => {
-        setToken(newToken);
+    const handleTaskCreated = (newTask) => {
+        setTasks([newTask, ...tasks]);
+        setIsModalOpen(false);
     };
 
-    if (!token) {
+    const handleTaskUpdated = (updatedTask) => {
+        setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
+        setTaskToEdit(null);
+        setIsModalOpen(false);
+    };
+
+    const handleTaskDeleted = (taskId) => {
+        setTasks(tasks.filter(task => task.id !== taskId));
+    };
+
+    const openModalForEdit = (task) => {
+        setTaskToEdit(task);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setTaskToEdit(null);
+        setIsModalOpen(false);
+    };
+
+    if (!isLoggedIn) {
         return (
             <div className="auth-container">
-                {isLoginView ? (
-                    <LoginForm onLoginSuccess={onLoginSuccess} onSwitchToRegister={() => setIsLoginView(false)} />
+                {showRegister ? (
+                    <RegisterForm onRegisterSuccess={() => setShowRegister(false)} />
                 ) : (
-                    <RegisterForm onRegisterSuccess={() => setIsLoginView(true)} onSwitchToLogin={() => setIsLoginView(true)} />
+                    <LoginForm onLogin={handleLogin} />
                 )}
+                <button className="btn btn-link" onClick={() => setShowRegister(!showRegister)}>
+                    {showRegister ? 'Já tenho uma conta? Faça Login' : 'Não tem uma conta? Registre-se'}
+                </button>
             </div>
         );
     }
 
     return (
-        <div className="dashboard-layout">
-            {/* Sidebar */}
-            <aside className="sidebar">
-                <div className="sidebar-header">
-                    <h2>Task Manager</h2>
-                </div>
-                <nav className="sidebar-nav">
-                    <ul>
-                        <li><a href="#" className="active">Tasks</a></li>
-                        {/* Adicione outros links de navegação aqui se precisar */}
-                    </ul>
-                </nav>
-                <footer className="sidebar-footer">
-                    <button onClick={handleLogout} className="logout-button">Logout</button>
-                </footer>
-            </aside>
-
-            {/* Conteúdo Principal */}
-            <main className="main-content">
-                <header className="main-header">
-                    <h1>Minhas Tarefas</h1>
-                    <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-                        Adicionar Tarefa
-                    </button>
-                </header>
-                
-                <StatusPanel /> {/* Adiciona o painel de status aqui */}
-                
-                <TaskList tasks={tasks} setTasks={setTasks} />
+        <div className="app-container">
+            <header>
+                <h1>Minha Agenda de Tarefas</h1>
+                <button onClick={handleLogout} className="btn btn-secondary">
+                    Sair
+                </button>
+            </header>
+            <main>
+                <StatusPanel tasks={tasks} />
+                <button className="btn btn-primary new-task-btn" onClick={() => setIsModalOpen(true)}>
+                    + Nova Tarefa
+                </button>
+                <TaskList
+                    tasks={tasks}
+                    onTaskDeleted={handleTaskDeleted}
+                    onTaskUpdated={handleTaskUpdated}
+                    onEditTask={openModalForEdit}
+                />
             </main>
-
-            {/* Modal para Adicionar Tarefa */}
             {isModalOpen && (
-                <TaskForm onTaskCreated={handleTaskCreated} closeModal={() => setIsModalOpen(false)} />
+                <TaskForm
+                    onTaskCreated={handleTaskCreated}
+                    onTaskUpdated={handleTaskUpdated}
+                    closeModal={closeModal}
+                    taskToEdit={taskToEdit}
+                />
             )}
         </div>
     );

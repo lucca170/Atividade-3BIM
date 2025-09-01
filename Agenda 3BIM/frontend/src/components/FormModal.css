@@ -1,103 +1,118 @@
-/* src/components/FormModal.css */
-
-/* --- Estilo do Modal --- */
+/* frontend/src/components/FormModal.css */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(17, 24, 39, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .modal-content {
-  background: var(--white-color);
-  padding: 2.5rem;
-  border-radius: var(--border-radius);
-  width: 90%;
-  max-width: 500px;
-  box-shadow: var(--shadow-md);
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    position: relative; /* Para posicionar o botão de fechar se necessário */
 }
 
 .modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 2rem;
-  font-size: 1.75rem;
-  color: var(--text-main);
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
-/* --- Estilos Gerais de Formulário --- */
-.form-group {
-  margin-bottom: 1.5rem;
+/* Botão de fechar (opcional, se você quiser um 'X' no canto) */
+/*
+.modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
 }
+.modal-close-button:hover {
+    color: #333;
+}
+*/
+
+/* O resto dos estilos de formulário são compartilhados com app.css ou podem vir aqui */
+/* Por exemplo, os estilos para .form-group, input, textarea, .form-actions, .btn, etc. */
+/* Se já estiverem em app.css, não é necessário duplicar. */
+/* Eu os incluí em TaskList.css anteriormente, você pode movê-los para um arquivo CSS base ou este. */
 
 .form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #374151;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
-.form-group input,
+.form-group input[type="text"],
+.form-group input[type="date"],
 .form-group textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  font-family: var(--font-family);
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+    box-sizing: border-box;
+    margin-bottom: 1rem; /* Adiciona um pouco de espaço inferior */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
 }
 
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
 }
 .btn-secondary:hover {
-  background-color: #d1d5db;
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
-/* --- Estilo para Forms de Auth --- */
-.auth-form-container {
-  background-color: var(--white-color);
-  padding: 2.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  width: 100%;
-  max-width: 400px;
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
 
-.switch-form-text {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--text-light);
+.error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    text-align: center;
 }
 
-.switch-form-text button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  font-weight: 600;
-  padding: 0;
-}
-
-.switch-form-text button:hover {
-  text-decoration: underline;
+.required {
+    color: #dc3545;
+    margin-left: 5px;
 }
