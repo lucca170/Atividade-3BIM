@@ -1,0 +1,103 @@
+/* src/components/FormModal.css */
+
+/* --- Estilo do Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--white-color);
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  color: var(--text-main);
+}
+
+/* --- Estilos Gerais de Formulário --- */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-family: var(--font-family);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+/* --- Estilo para Forms de Auth --- */
+.auth-form-container {
+  background-color: var(--white-color);
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 400px;
+}
+
+.switch-form-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-light);
+}
+
+.switch-form-text button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 0;
+}
+
+.switch-form-text button:hover {
+  text-decoration: underline;
+}

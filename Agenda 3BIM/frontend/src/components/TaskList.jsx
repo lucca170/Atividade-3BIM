@@ -5,7 +5,6 @@ import { deleteTask, updateTask } from '../services/api';
 import './TaskList.css';
 
 const TaskList = ({ tasks, setTasks }) => {
-
     const handleDelete = async (id) => {
         try {
             await deleteTask(id);
@@ -25,33 +24,39 @@ const TaskList = ({ tasks, setTasks }) => {
         }
     };
 
+    if (!tasks || tasks.length === 0) {
+        return (
+            <div className="empty-state">
+                <h3>Você não tem tarefas pendentes!</h3>
+                <p>Clique em "Adicionar Tarefa" para começar.</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="task-list">
-            {/* Verifica se existem tarefas antes de mapear */}
-            {tasks.length === 0 ? (
-                <p>Nenhuma tarefa encontrada.</p>
-            ) : (
-                <ul>
-                    {/* Utiliza a variável 'tasks' para renderizar a lista */}
-                    {tasks.map(task => (
-                        <li key={task.id} className={task.completed ? 'completed' : ''}>
-                            <div className="task-info">
-                                <h3>{task.title}</h3>
-                                <p>{task.description}</p>
-                                <small>Data de Entrega: {task.due_date}</small>
-                            </div>
-                            <div className="task-actions">
-                                <button onClick={() => handleToggleComplete(task)}>
-                                    {task.completed ? 'Desmarcar' : 'Concluir'}
-                                </button>
-                                <button onClick={() => handleDelete(task.id)} className="delete-button">
-                                    Excluir
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+        <div className="task-list-container">
+            {tasks.map(task => (
+                <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                    <div className="task-content">
+                        <div className="task-header">
+                            <h3>{task.title}</h3>
+                            <span className={`task-status ${task.completed ? 'status-completed' : 'status-pending'}`}>
+                                {task.completed ? 'Concluída' : 'Pendente'}
+                            </span>
+                        </div>
+                        <p className="task-description">{task.description}</p>
+                        <p className="task-due-date">Vencimento: {task.due_date}</p>
+                    </div>
+                    <div className="task-actions">
+                        <button className="btn-toggle" onClick={() => handleToggleComplete(task)}>
+                            {task.completed ? 'Reabrir' : 'Concluir'}
+                        </button>
+                        <button className="btn-delete" onClick={() => handleDelete(task.id)}>
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };

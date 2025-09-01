@@ -5,13 +5,14 @@ import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
-import { getTasks } from './services/api'; // Removido imports não usados aqui para simplificar
-import './app.css';
+import { getTasks } from './services/api';
+import './App.css';
 
 const App = () => {
     const [tasks, setTasks] = useState([]);
     const [token, setToken] = useState(localStorage.getItem('token'));
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLoginView, setIsLoginView] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -21,16 +22,18 @@ const App = () => {
                     setTasks(response.data);
                 } catch (error) {
                     console.error('Failed to fetch tasks', error);
+                    if (error.response && error.response.status === 401) {
+                        handleLogout();
+                    }
                 }
             }
         };
         fetchTasks();
     }, [token]);
 
-    // PONTO 1: A FUNÇÃO PRECISA SER DEFINIDA DENTRO DO APP
-    // Esta função atualiza a lista de tarefas adicionando a nova tarefa.
     const handleTaskCreated = (newTask) => {
-        setTasks(prevTasks => [...prevTasks, newTask]);
+        setTasks(prevTasks => [newTask, ...prevTasks]);
+        setIsModalOpen(false); // Fecha o modal após criar a tarefa
     };
 
     const handleLogout = () => {
@@ -39,33 +42,56 @@ const App = () => {
         setTasks([]);
     };
 
+    const onLoginSuccess = (newToken) => {
+        setToken(newToken);
+    };
+
     if (!token) {
         return (
-            <div>
-                {isLogin ? (
-                    <LoginForm setToken={setToken} />
+            <div className="auth-container">
+                {isLoginView ? (
+                    <LoginForm onLoginSuccess={onLoginSuccess} onSwitchToRegister={() => setIsLoginView(false)} />
                 ) : (
-                    <RegisterForm setToken={setToken} />
+                    <RegisterForm onRegisterSuccess={() => setIsLoginView(true)} onSwitchToLogin={() => setIsLoginView(true)} />
                 )}
-                <button onClick={() => setIsLogin(!isLogin)}>
-                    {isLogin ? 'Não tem uma conta? Registre-se' : 'Já tem uma conta? Login'}
-                </button>
             </div>
         );
     }
 
     return (
-        <div className="app-container">
-            <header className="app-header">
-                <h1>Gerenciador de Tarefas</h1>
-                <button onClick={handleLogout} className="logout-button">Logout</button>
-            </header>
-            <main>
-                {/* PONTO 2: A FUNÇÃO PRECISA SER PASSADA COMO PROP PARA O TASKFORM */}
-                <TaskForm onTaskCreated={handleTaskCreated} />
+        <div className="dashboard-layout">
+            {/* Sidebar */}
+            <aside className="sidebar">
+                <div className="sidebar-header">
+                    <h2>Task Manager</h2>
+                </div>
+                <nav className="sidebar-nav">
+                    <ul>
+                        <li><a href="#" className="active">Tasks</a></li>
+                        {/* Adicione outros links de navegação aqui se precisar */}
+                    </ul>
+                </nav>
+                <footer className="sidebar-footer">
+                    <button onClick={handleLogout} className="logout-button">Logout</button>
+                </footer>
+            </aside>
 
+            {/* Conteúdo Principal */}
+            <main className="main-content">
+                <header className="main-header">
+                    <h1>Minhas Tarefas</h1>
+                    <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+                        Adicionar Tarefa
+                    </button>
+                </header>
+                
                 <TaskList tasks={tasks} setTasks={setTasks} />
             </main>
+
+            {/* Modal para Adicionar Tarefa */}
+            {isModalOpen && (
+                <TaskForm onTaskCreated={handleTaskCreated} closeModal={() => setIsModalOpen(false)} />
+            )}
         </div>
     );
 };
