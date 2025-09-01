@@ -32,8 +32,6 @@ Iniciar servidor:
 python manage.py runserver
 
 # Frontend (React + Vite + Tailwind)
-cd ../frontend
-
 Instalar dependências:
 npm install
 
