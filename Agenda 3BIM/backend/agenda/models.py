@@ -1,3 +1,5 @@
+# backend/agenda/models.py
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -5,7 +7,7 @@ class User(AbstractUser):
     pass
 
 class Task(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks') # REMOVIDO O default=1
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=50, default='Pendente')

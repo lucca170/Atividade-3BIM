@@ -5,6 +5,7 @@ import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import StatusPanel from './components/StatusPanel'; // Importa o novo componente
 import { getTasks } from './services/api';
 import './App.css';
 
@@ -84,6 +85,8 @@ const App = () => {
                         Adicionar Tarefa
                     </button>
                 </header>
+                
+                <StatusPanel /> {/* Adiciona o painel de status aqui */}
                 
                 <TaskList tasks={tasks} setTasks={setTasks} />
             </main>

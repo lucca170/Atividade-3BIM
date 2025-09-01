@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import api from '../services/api';
-import './Form.css';
+import './FormModal.css';
 
 function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
   const [username, setUsername] = useState('');
@@ -13,12 +13,13 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
     e.preventDefault();
     setError('');
     try {
-      const response = await api.post('api-token-auth/', { username, password });
+      const response = await api.post('token/', { username, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
-      onLoginSuccess(token);
+      // Apenas notifica o App.jsx que o login foi bem-sucedido
+      onLoginSuccess();
     } catch (err) {
-      setError('Usuário ou senha inválidos.');
+      setError('Utilizador ou palavra-passe inválidos.');
       console.error('Falha no login', err);
     }
   };
@@ -28,7 +29,7 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div className="form-group">
-          <label htmlFor="username">Usuário</label>
+          <label htmlFor="username">Utilizador</label>
           <input
             type="text"
             id="username"
@@ -38,7 +39,7 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Senha</label>
+          <label htmlFor="password">Palavra-passe</label>
           <input
             type="password"
             id="password"
@@ -55,7 +56,7 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister }) {
           <p>
             Não tem uma conta?{' '}
             <button type="button" onClick={onSwitchToRegister}>
-              Registre-se
+              Registe-se
             </button>
           </p>
         </div>

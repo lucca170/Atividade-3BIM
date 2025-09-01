@@ -4,7 +4,7 @@ import React from 'react';
 import { deleteTask, updateTask } from '../services/api';
 import './TaskList.css';
 
-const TaskList = ({ tasks, setTasks }) => {
+const TaskList = ({ tasks, setTasks, onEditTask }) => {
     const handleDelete = async (id) => {
         try {
             await deleteTask(id);
@@ -53,6 +53,9 @@ const TaskList = ({ tasks, setTasks }) => {
                         </button>
                         <button className="btn-delete" onClick={() => handleDelete(task.id)}>
                             Excluir
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => onEditTask(task)}>
+                            Editar
                         </button>
                     </div>
                 </div>
